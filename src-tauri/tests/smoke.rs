@@ -74,6 +74,11 @@ fn smoke_download() {
         embed_metadata: true,
         expected_title: None,
         force: false,
+        video_id: None,
+        profile: "balanced",
+        use_archive: true,
+        auto_retry: true,
+        max_concurrent: 1,
     };
 
     let args = ytdlp::download_args(&bin(), &opts, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
@@ -127,6 +132,11 @@ fn smoke_download_track() {
         embed_metadata: true,
         expected_title: None,
         force: false,
+        video_id: None,
+        profile: "balanced",
+        use_archive: true,
+        auto_retry: true,
+        max_concurrent: 1,
     };
     let started = std::time::SystemTime::now();
     let progress = std::sync::Arc::new(std::sync::Mutex::new(0.0f64));

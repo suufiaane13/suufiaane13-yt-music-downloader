@@ -35,7 +35,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "app", "dmg"],
+    "targets": ["nsis"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -43,6 +43,22 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": []
+    "resources": [
+      "bin/yt-dlp.exe",
+      "bin/ffmpeg.exe",
+      "bin/ffprobe.exe",
+      "bin/deno.exe"
+    ],
+    "windows": {
+      "nsis": {
+        "languages": ["French"],
+        "displayLanguageSelector": false,
+        "installMode": "currentUser",
+        "installerIcon": "nsis-branding/installer.ico",
+        "headerImage": "nsis-branding/header.bmp",
+        "sidebarImage": "nsis-branding/sidebar.bmp",
+        "compression": "lzma"
+      }
+    }
   }
 }

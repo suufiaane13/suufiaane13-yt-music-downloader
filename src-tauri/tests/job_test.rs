@@ -29,6 +29,11 @@ fn job_parallel_segments() {
         embed_metadata: false,
         user_first_name: String::new(),
         user_last_name: String::new(),
+        update_url: String::new(),
+        download_profile: "balanced".into(),
+        auto_concurrent: false,
+        use_archive: true,
+        auto_retry: true,
     };
 
     let manager = Arc::new(Manager::new(settings, tmp_bin()));

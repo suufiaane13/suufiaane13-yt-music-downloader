@@ -1,0 +1,102 @@
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows installer (NSIS x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: ./src-tauri -> target
+          key: x86_64-pc-windows-msvc
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # src-tauri/bin/ est gitignore (300 Mo de .exe) : on le reconstruit ici.
+      - name: Cache engine binaries
+        uses: actions/cache@v4
+        with:
+          path: src-tauri/bin
+          key: engine-win-x64-v1
+          restore-keys: engine-win-x64-
+
+      - name: Download engine binaries (yt-dlp, ffmpeg, ffprobe, deno)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bin = "src-tauri\bin"
+          New-Item -ItemType Directory -Force -Path $bin | Out-Null
+
+          if (-not (Test-Path "$bin\yt-dlp.exe")) {
+            Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile "$bin\yt-dlp.exe"
+          }
+
+          if (-not (Test-Path "$bin\ffmpeg.exe")) {
+            $zip = Join-Path $env:RUNNER_TEMP "ffmpeg.zip"
+            Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip" -OutFile $zip
+            Expand-Archive -Path $zip -DestinationPath $env:RUNNER_TEMP -Force
+            $ffmpeg = Get-ChildItem -Path $env:RUNNER_TEMP -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1
+            $ffprobe = Get-ChildItem -Path $env:RUNNER_TEMP -Recurse -Filter "ffprobe.exe" | Select-Object -First 1
+            Copy-Item $ffmpeg.FullName  "$bin\ffmpeg.exe"
+            Copy-Item $ffprobe.FullName "$bin\ffprobe.exe"
+            Remove-Item $zip -Force
+          }
+
+          if (-not (Test-Path "$bin\deno.exe")) {
+            $zip = Join-Path $env:RUNNER_TEMP "deno.zip"
+            Invoke-WebRequest -Uri "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-pc-windows-msvc.zip" -OutFile $zip
+            Expand-Archive -Path $zip -DestinationPath $env:RUNNER_TEMP -Force
+            $deno = Get-ChildItem -Path $env:RUNNER_TEMP -Recurse -Filter "deno.exe" | Select-Object -First 1
+            Copy-Item $deno.FullName "$bin\deno.exe"
+            Remove-Item $zip -Force
+          }
+
+          Get-ChildItem $bin | Select-Object Name, Length
+
+      # No signing: no certificate, no secrets.
+      - name: Build Windows installer
+        uses: tauri-apps/tauri-action@v1
+        with:
+          uploadUpdaterJson: false
+
+      - name: Check produced installer
+        shell: pwsh
+        run: |
+          Get-ChildItem "src-tauri\target\release\bundle\nsis" -Filter "*-setup.exe"
+
+      - name: Upload installer (.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: yt-music-windows-x64-installer
+          path: src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error
+          retention-days: 30
