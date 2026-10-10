@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Densité UI (mode compact) */
+html.compact body,
+.compact {
+  font-size: 12px;
+}
+.compact .h-12 {
+  height: 2.5rem;
+}
+.compact aside {
+  width: 10rem;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    font-family: "Inter", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background-color: #0b0c0e;
+    color: #d6d7da;
+    overflow: hidden;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    font-size: 13px;
+  }
+
+  ::selection {
+    background: rgba(255, 59, 92, 0.35);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #3a3e45;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #52565f;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 9999px;
+    outline: none;
+    background: linear-gradient(
+      to right,
+      #ff3b5c var(--p, 0%),
+      #292c31 var(--p, 0%)
+    );
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #ff3b5c;
+    cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(255, 59, 92, 0.14);
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-lg border border-dark-600/60 bg-dark-700/40;
+  }
+
+  .field {
+    @apply w-full h-11 px-3.5 bg-dark-700/80 border border-dark-500/70 rounded-lg text-[13px] text-white placeholder-dark-300 outline-none transition-[border-color,box-shadow,background-color] focus:border-accent-500/70 focus:ring-2 focus:ring-accent-500/20;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg h-10 px-4 bg-accent-600 hover:bg-accent-500 text-white text-[13px] font-semibold shadow-glow-accent transition-colors active:scale-[.98] disabled:opacity-40 disabled:pointer-events-none whitespace-nowrap;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg h-9 px-3 text-[13px] font-medium text-dark-200 hover:text-white hover:bg-white/5 border border-transparent hover:border-dark-600 transition-colors active:scale-[.98] disabled:opacity-40 disabled:pointer-events-none whitespace-nowrap;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-1 rounded-md h-8 px-2.5 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40 whitespace-nowrap;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wider;
+  }
+
+  .kbd {
+    @apply inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium border border-dark-500/70 bg-dark-800/60 text-dark-300;
+  }
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.boot-step-in {
+  animation: fade-in-up 0.3s ease both;
+}
+
+@keyframes boot-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+.boot-fade {
+  animation: boot-fade 0.4s ease both;
+}
+
+@keyframes eq-bounce {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.eq-bar {
+  transform-origin: bottom;
+  animation: eq-bounce 0.65s ease-in-out infinite;
+}
+
+/* --- Boutons de fenêtre (réduire / agrandir / fermer) --- */
+.wm-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.wm-glyph {
+  display: block;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wm-btn:hover .wm-glyph {
+  transform: scale(1.14) translateY(-1px);
+}
+
+.wm-btn:active .wm-glyph {
+  transform: scale(0.9);
+}
+
+.wm-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 75%
+  );
+  background-size: 200% 200%;
+  background-position: 130% 0;
+  transition: opacity 0.15s ease;
+}
+
+.wm-btn:hover .wm-sheen {
+  opacity: 1;
+  animation: wm-sweep 0.55s ease forwards;
+}
+
+@keyframes wm-sweep {
+  0% {
+    background-position: 130% 0;
+  }
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+/* Anneau qui pulse quand la fenêtre est agrandie (état « restaurer »). */
+.wm-restore-ring {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(255, 59, 92, 0);
+  animation: wm-ring-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes wm-ring-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 59, 92, 0);
+  }
+  50% {
+    box-shadow: 0 0 10px 1px rgba(255, 59, 92, 0.35);
+  }
+}
+
+.wm-close:hover {
+  text-shadow: 0 0 8px rgba(248, 113, 113, 0.9);
+}

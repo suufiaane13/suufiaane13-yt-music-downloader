@@ -1,0 +1,21 @@
+[package]
+name = "yt-music-downloader"
+version = "2.0.1"
+edition = "2021"
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "protocol-asset"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-dialog = "2.7.3"
+tauri-plugin-shell = "2.3.6"
+tauri-plugin-notification = "2.4.0"
+mp3-duration = "0.1"
+base64 = "0.22"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[lib]
+name = "yt_music_downloader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]

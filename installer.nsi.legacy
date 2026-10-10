@@ -1,0 +1,85 @@
+; YT Music Downloader - Installateur NSIS (per-user, sans élévation)
+Unicode True
+
+!include "MUI2.nsh"
+!include "FileFunc.nsh"
+
+Name "YT Music Downloader"
+OutFile "release-app\YT-Music-Downloader-Setup.exe"
+InstallDir "$LOCALAPPDATA\YTMusicDownloader"
+InstallDirRegKey HKCU "Software\YTMusicDownloader" "InstallDir"
+
+; Installation pour l'utilisateur courant uniquement (les mises à jour du
+; moteur écrivent dans le dossier d'installation, donc pas de Program Files).
+RequestExecutionLevel user
+
+SetCompressor /SOLID lzma
+
+!define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\YTMusicDownloader"
+!define APP_EXE "$INSTDIR\yt-music-downloader.exe"
+
+; ---------------------------------------------------------------------------
+; Pages
+!define MUI_ABORTWARNING
+
+; Habillage graphique : logo + couleurs de l'application (accent #FF3B5C)
+!define MUI_ICON "src-tauri\icons\icon.ico"
+!define MUI_UNICON "src-tauri\icons\icon.ico"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "nsis-img\header.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "nsis-img\header.bmp"
+!define MUI_HEADERIMAGE_RIGHT
+!define MUI_HEADERTEXTCOLOR "FFFFFF"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "nsis-img\welcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
+!define MUI_COMPONENTSPAGE_SMALLDESC
+
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_LANGUAGE "French"
+
+; ---------------------------------------------------------------------------
+Section "Install"
+  SetOutPath "$INSTDIR"
+  File "release-app\yt-music-downloader.exe"
+
+  SetOutPath "$INSTDIR\bin"
+  File /r "release-app\bin\*.*"
+
+  ; Raccourcis (menu démarrer + bureau)
+  CreateDirectory "$SMPROGRAMS\YT Music Downloader"
+  CreateShortcut "$SMPROGRAMS\YT Music Downloader\YT Music Downloader.lnk" "$INSTDIR\yt-music-downloader.exe"
+  CreateShortcut "$DESKTOP\YT Music Downloader.lnk" "$INSTDIR\yt-music-downloader.exe"
+
+  ; Désinstallation + entrée "Programmes et fonctionnalités"
+  WriteUninstaller "$INSTDIR\uninstall.exe"
+  WriteRegStr HKCU "Software\YTMusicDownloader" "InstallDir" "$INSTDIR"
+  WriteRegStr HKCU "${UNINST_KEY}" "DisplayName" "YT Music Downloader"
+  WriteRegStr HKCU "${UNINST_KEY}" "DisplayIcon" "${APP_EXE}"
+  WriteRegStr HKCU "${UNINST_KEY}" "DisplayVersion" "1.0.0"
+  WriteRegStr HKCU "${UNINST_KEY}" "Publisher" "HAJJI Soufiane"
+  WriteRegStr HKCU "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKCU "${UNINST_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKCU "${UNINST_KEY}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
+  ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+  IntFmt $0 "0x%08X" $0
+  WriteRegDWORD HKCU "${UNINST_KEY}" "EstimatedSize" "$0"
+SectionEnd
+
+; ---------------------------------------------------------------------------
+Section "Uninstall"
+  Delete "$INSTDIR\uninstall.exe"
+  Delete "$INSTDIR\yt-music-downloader.exe"
+  RMDir /r "$INSTDIR\bin"
+  RMDir "$INSTDIR"
+
+  Delete "$SMPROGRAMS\YT Music Downloader\YT Music Downloader.lnk"
+  RMDir "$SMPROGRAMS\YT Music Downloader"
+  Delete "$DESKTOP\YT Music Downloader.lnk"
+
+  DeleteRegKey HKCU "${UNINST_KEY}"
+  DeleteRegKey HKCU "Software\YTMusicDownloader"
+SectionEnd

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Frontend build
+dist/
+
+# Rust / Tauri
+src-tauri/target/
+
+# Moteur embarque (yt-dlp / ffmpeg / ffprobe) : ~300 Mo de binaires .exe,
+# reconstruits par build-release.bat, jamais pousses sur GitHub.
+src-tauri/bin/
+
+# Packaged release (rebuild with build-release.bat)
+release-app/
+
+# Logs / local junk
+*.log
+logs.txt
+build-stdout.txt
+build-stderr.txt
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+
+# Python leftovers (legacy)
+__pycache__/
+*.pyc
+.venv/
